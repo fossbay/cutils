@@ -1,6 +1,6 @@
 /* gui.h - a simple, lightweight, easy to use, cross platform gui library
  *
- * Copyright (c) 2021 Cleanware
+ * Copyright (c) 2021 Fossbay
  *
  * This software is provided 'as-is', without any express or implied
  * warranty. In no event will the authors be held liable for any damages
