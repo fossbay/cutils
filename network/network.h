@@ -46,28 +46,28 @@ socket_t open_socket(int type);
 /**
  * Connect a socket to a remote host.
 */
-int connect(socket_t socket, char *address, unsigned short port);
+int connect_socket(socket_t socket, char *address, unsigned short port);
 
 /**
  * Bind a native socket to the specified port
  * and start listening for connections.
 */
-int listen(socket_t socket, unsigned short port);
+int socket_listen(socket_t socket, unsigned short port);
 
 /**
  * Accept a socket connection.
 */
-socket_t accept(socket_t socket, char **address, unsigned short *port);
+socket_t accept_socket(socket_t socket, char **address, unsigned short *port);
 
 /**
  * Send data to a remote socket.
 */
-int send(socket_t socket, char *buf, int size);
+int socket_send(socket_t socket, char *buf, int size);
 
 /**
  * Receive data from a remote socket.
 */
-int receive(socket_t socket, char *buf, int size);
+int socket_recv(socket_t socket, char *buf, int size);
 
 /**
  * Close a native socket.
