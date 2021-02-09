@@ -33,6 +33,12 @@ enum socket_type
 
 typedef int socket_t;
 
+struct client_info
+{
+	char address[16];
+	unsigned int port;
+};
+
 /*---------------------------------------------------------------------------------*/
 /*                              Function Declarations                              */
 /*---------------------------------------------------------------------------------*/
@@ -57,7 +63,7 @@ int socket_listen(socket_t socket, unsigned short port);
 /**
  * Accept a socket connection.
 */
-socket_t accept_socket(socket_t socket, char **address, unsigned short *port);
+socket_t accept_socket(socket_t socket, struct client_info *info);
 
 /**
  * Send data to a remote socket.
@@ -92,7 +98,68 @@ void close_socket(socket_t socket);
 
 #if defined(unix) || defined(__unix__) || defined(__unix) || defined(__APPLE__)
 
+#include <unistd.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
 
+socket_t open_socket(int type)
+{
+	socket_t s = -1;
+	
+	switch (type)
+	{
+		case SOCKET_TCP:
+		{
+			s = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+			break;
+		}
+	}
+
+	return s;
+}
+
+int connect_socket(socket_t socket, char *address, unsigned int port)
+{
+	struct sockaddr_in addr = {0};
+
+	addr.sin_family = AF_INET;
+	addr.sin_port = htons(port);
+	addr.sin_addr.s_addr = inet_addr(address);
+
+	return connect(socket, (struct sockaddr *)&addr, sizeof(addr));
+}
+
+int socket_listen(socket_t socket, unsigned int port)
+{
+	struct sockaddr_in addr = {0};
+
+	addr.sin_family = AF_INET;
+	addr.sin_port = htons(port);
+	addr.sin_addr.s_addr = INADDR_ANY;
+
+	if(bind(socket, (struct sockaddr *)&addr, sizeof(addr)) == -1) return -1;
+
+	return listen(socket, 1);
+}
+
+socket_t accept_socket(socket_t socket, struct client_info *info)
+{
+	struct sockaddr_in addr = {0};
+
+	int sock = accept(socket, &addr, sizeof addr);
+
+	if(socket != -1)
+	{
+		if(info != NULL)
+		{
+			
+		}
+		
+		return sock;
+	}
+	else return -1;
+}
 
 #endif
 
