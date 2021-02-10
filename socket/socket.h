@@ -209,7 +209,7 @@ socket_t accept_socket(socket_t socket, struct client_info *info)
 {
 	struct sockaddr_in addr = {0};
 
-	int sock = accept(socket, &addr, sizeof addr);
+	int sock = accept(socket, (struct sockaddr *)&addr, sizeof(addr));
 
 	if(socket != -1)
 	{
