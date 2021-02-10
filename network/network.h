@@ -35,8 +35,8 @@ typedef int socket_t;
 
 struct client_info
 {
-	char address[16];
-	unsigned int port;
+	char address[64];
+	unsigned short port;
 };
 
 /*---------------------------------------------------------------------------------*/
@@ -96,7 +96,7 @@ void close_socket(socket_t socket);
 /*                            Unix Implementation                            */
 /*---------------------------------------------------------------------------*/
 
-#if defined(unix) || defined(__unix__) || defined(__unix) || defined(__APPLE__)
+#if defined(unix) || defined(__unix) || defined(__unix__) || defined(__APPLE__)
 
 #include <unistd.h>
 #include <arpa/inet.h>
@@ -119,23 +119,25 @@ socket_t open_socket(int type)
 	return s;
 }
 
-int connect_socket(socket_t socket, char *address, unsigned int port)
+int connect_socket(socket_t socket, char *address, unsigned short port)
 {
 	struct sockaddr_in addr = {0};
 
 	addr.sin_family = AF_INET;
-	addr.sin_port = htons(port);
-	addr.sin_addr.s_addr = inet_addr(address);
+	
+	addr.sin_port = port;
+	inet_pton(AF_INET, address, &(addr.sin_addr));
 
 	return connect(socket, (struct sockaddr *)&addr, sizeof(addr));
 }
 
-int socket_listen(socket_t socket, unsigned int port)
+int socket_listen(socket_t socket, unsigned short port)
 {
 	struct sockaddr_in addr = {0};
 
 	addr.sin_family = AF_INET;
-	addr.sin_port = htons(port);
+	
+	addr.sin_port = port;
 	addr.sin_addr.s_addr = INADDR_ANY;
 
 	if(bind(socket, (struct sockaddr *)&addr, sizeof(addr)) == -1) return -1;
@@ -153,12 +155,28 @@ socket_t accept_socket(socket_t socket, struct client_info *info)
 	{
 		if(info != NULL)
 		{
-			
+			info->port = addr.sin_port;
+			inet_ntop(AF_INET, &(addr.sin_addr), info->address, INET_ADDRSTRLEN);		
 		}
 		
 		return sock;
 	}
 	else return -1;
+}
+
+int socket_send(socket_t socket, char *buf, int size)
+{
+	return send(socket, buf, size, 0);
+}
+
+int socket_recv(socket_t socket, char *buf, int size)
+{
+	return recv(socket, buf, size, 0);
+}
+
+void close_socket(socket_t socket)
+{
+	close(socket);
 }
 
 #endif
