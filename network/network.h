@@ -86,15 +86,12 @@ void close_socket(socket_t socket);
 
 #if defined(_WIN32)
 
-
-#include <WS2tcpip.h> // sockets
-#pragma comment (lib, "ws2_32.lib")
-
-
+#include <WS2tcpip.h>
 
 socket_t open_socket(int type)
 {
 	socket_t s = -1;
+	
 	WSADATA data;
 	if (WSAStartup(MAKEWORD(2, 2), &data) != 0) { exit(1); };
 
@@ -103,12 +100,10 @@ socket_t open_socket(int type)
 	case SOCKET_TCP: {
 		s = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 		break;
-
 	}
-
 	}
-	return (s);
-
+	
+	return s;
 }
 
 int connect_socket(socket_t socket, char* address, unsigned short port)
@@ -116,22 +111,25 @@ int connect_socket(socket_t socket, char* address, unsigned short port)
 	sockaddr_in network_sockaddr_connect;
 
 	network_sockaddr_connect.sin_family = AF_INET;
-	network_sockaddr_connect.sin_port = htons(port);
+	
+	network_sockaddr_connect.sin_port = port;
 	inet_pton(AF_INET, address, &network_sockaddr_connect.sin_addr);
+	
 	return connect(socket, (sockaddr*)&network_sockaddr_connect, sizeof(network_sockaddr_connect));
-
 }
+
 int socket_listen(socket_t socket, unsigned short port)
 {
-
 	sockaddr_in network_sockaddr_listen;
+	
 	network_sockaddr_listen.sin_family = AF_INET;
-	network_sockaddr_listen.sin_port = htons(port);
+	
+	network_sockaddr_listen.sin_port = port;
 	network_sockaddr_listen.sin_addr.S_un.S_addr = INADDR_ANY;
-	if (bind(socket, (sockaddr*) & (network_sockaddr_listen), sizeof(network_sockaddr_listen)) != 0) { return 1; }
+	
+	if (bind(socket, (sockaddr*) & (network_sockaddr_listen), sizeof(network_sockaddr_listen)) == -1) return -1;
+	
 	return listen(socket, SOMAXCONN);
-
-
 }
 
 
@@ -142,19 +140,13 @@ int socket_send(socket_t socket, char* buf, int size)
 
 int socket_recv(socket_t socket, char* buf, int size)
 {
-	socket = accept(socket, NULL, NULL);
-
 	return recv(socket, buf, size, 0);
-
 }
 
 void close_socket(socket_t socket)
 {
 	closesocket(socket);
-	WSACleanup();
-
 }
-
 
 #endif
 
