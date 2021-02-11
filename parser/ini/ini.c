@@ -22,12 +22,19 @@
 #include "ini.h"
 
 int ini_count(char *buf) {
-	int i, count = 0;
+	int i, j = 0, count = 0;
 	for(i = 0; buf[i] != 0; i++) {
 		switch(buf[i]) {
+			case '#':
+			case ';':
+				if(j == 0) j = 1;
+				break;
+			case '\n':
+				if(j == 1) j = 0;
+				break;
 			case '=':
 			case '[': {
-				count++;
+				if(j == 0) count++;
 				break;
 			}
 		}
@@ -40,6 +47,10 @@ int ini_parse(char *buf, struct ini_value *values) {
 	int i = 0, j = 0, k = 0;
 	while(i != -1) {
 		switch(buf[i]) {
+			case '#':
+			case ';':
+				if(j == 0) j = -1;
+				break;
 			case 0:
 				i = -2;
 				if(j == 1) {
@@ -49,6 +60,9 @@ int ini_parse(char *buf, struct ini_value *values) {
 				break;
 			case '\n':
 				switch(j) {
+					case -1:
+						j = 0;
+						break;
 					case 0:
 						k = i + 1;
 						break;
@@ -70,13 +84,13 @@ int ini_parse(char *buf, struct ini_value *values) {
 					values->name = buf + k;
 					buf[i] = 0;
 					k = i + 1;
-				} else return i + 1;
+				} else if(j != -1) return i + 1;
 				break;
 			case '[':
 				if(j == 0) {
 					j = 2;
 					k = i + 1;
-				} else return i + 1;
+				} else if(j != -1) return i + 1;
 				break;
 			case ']':
 				if(j == 2) {
@@ -87,7 +101,7 @@ int ini_parse(char *buf, struct ini_value *values) {
 					buf[i] = 0;
 					k = i + 1;
 					values++;
-				} else return i + 1;
+				} else if(j != -1) return i + 1;
 				break;
 		}
 
