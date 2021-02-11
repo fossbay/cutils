@@ -26,15 +26,13 @@
 /*                              Data Structures                              */
 /*---------------------------------------------------------------------------*/
 
-enum socket_type
-{
+enum socket_type {
 	SOCKET_TCP
 };
 
 typedef int socket_t;
 
-struct client_info
-{
+struct client_info {
 	char address[64];
 	unsigned short port;
 };
