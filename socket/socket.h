@@ -84,7 +84,7 @@ void close_socket(socket_t socket);
 
 #if defined(_WIN32)
 
-#include <WS2tcpip.h>
+#include <windows.h>
 
 socket_t open_socket(int type) {
 	socket_t s = -1;
