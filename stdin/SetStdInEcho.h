@@ -5,8 +5,7 @@
 #include <unistd.h>
 #endif
 
-void setecho(int state)
-{
+void setecho(int state) {
 #ifdef WIN32
     HANDLE hStdin = GetStdHandle(STD_INPUT_HANDLE); 
     DWORD mode;
