@@ -26,17 +26,15 @@
 /*                              Data Structures                              */
 /*---------------------------------------------------------------------------*/
 
-enum socket_type
-{
-	SOCKET_TCP
+enum socket_type {
+    SOCKET_TCP
 };
 
 typedef int socket_t;
 
-struct client_info
-{
-	char address[64];
-	unsigned short port;
+struct client_info {
+    char address[64];
+    unsigned short port;
 };
 
 /*---------------------------------------------------------------------------------*/
@@ -52,7 +50,7 @@ socket_t open_socket(int type);
 /**
  * Connect a socket to a remote host.
 */
-int connect_socket(socket_t socket, char *address, unsigned short port);
+int connect_socket(socket_t socket, char* address, unsigned short port);
 
 /**
  * Bind a native socket to the specified port
@@ -63,17 +61,17 @@ int socket_listen(socket_t socket, unsigned short port);
 /**
  * Accept a socket connection.
 */
-socket_t accept_socket(socket_t socket, struct client_info *info);
+socket_t accept_socket(socket_t socket, struct client_info* info);
 
 /**
  * Send data to a remote socket.
 */
-int socket_send(socket_t socket, char *buf, int size);
+int socket_send(socket_t socket, char* buf, int size);
 
 /**
  * Receive data from a remote socket.
 */
-int socket_recv(socket_t socket, char *buf, int size);
+int socket_recv(socket_t socket, char* buf, int size);
 
 /**
  * Close a native socket.
@@ -85,94 +83,82 @@ void close_socket(socket_t socket);
 /*----------------------------------------------------------------------------*/
 
 #if defined(_WIN32)
- 
 
 #include <WS2tcpip.h> // sockets
- 
-
 
 socket_t open_socket(int type)
 {
-	socket_t s = -1;
-	WSADATA data;
-	if (WSAStartup(MAKEWORD(2, 2), &data) != 0) { exit(1); };
+    socket_t s = -1;
+    WSADATA data;
+    if (WSAStartup(MAKEWORD(2, 2), &data) != 0) {
+        exit(1);
+    };
 
-	switch (type)
-	{
-	case SOCKET_TCP: {
-		s = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-		break;
-
-	}
-
-	}
-	return (s);
-
+    switch (type) {
+    case SOCKET_TCP: {
+        s = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+        break;
+    }
+    }
+    return (s);
 }
 
 int connect_socket(socket_t socket, char* address, unsigned short port)
 {
-	sockaddr_in network_sockaddr_connect;
+    sockaddr_in network_sockaddr_connect;
 
-	network_sockaddr_connect.sin_family = AF_INET;
-	network_sockaddr_connect.sin_port = htons(port);
-	inet_pton(AF_INET, address, &network_sockaddr_connect.sin_addr);
-	return connect(socket, (sockaddr*)&network_sockaddr_connect, sizeof(network_sockaddr_connect));
-
+    network_sockaddr_connect.sin_family = AF_INET;
+    network_sockaddr_connect.sin_port = htons(port);
+    inet_pton(AF_INET, address, &network_sockaddr_connect.sin_addr);
+    return connect(socket, (sockaddr*)&network_sockaddr_connect, sizeof(network_sockaddr_connect));
 }
 socket_t accept_socket(socket_t socket, struct client_info* info)
 {
-	sockaddr_in client; 
-	int client_size = sizeof(client);
-	int sock = accept(socket , (sockaddr*)&client, &client_size);
-	if (socket != -1)
-	{
-		if (info != NULL)
-		{
-			info->port = client.sin_port;
-			inet_ntop(AF_INET, &client.sin_addr, info->address, INET_ADDRSTRLEN);
-		}
-		else {
-			return sock;
-		}
-	}
-	else
-	{
-		return -1;
-	}
+    sockaddr_in client;
+    int client_size = sizeof(client);
+    int sock = accept(socket, (sockaddr*)&client, &client_size);
+    if (socket != -1) {
+        if (info != NULL) {
+            info->port = client.sin_port;
+            inet_ntop(AF_INET, &client.sin_addr, info->address, INET_ADDRSTRLEN);
+        }
+        else {
+            return sock;
+        }
+    }
+    else {
+        return -1;
+    }
 }
 
 int socket_listen(socket_t socket, unsigned short port)
 {
 
-	sockaddr_in network_sockaddr_listen;
-	network_sockaddr_listen.sin_family = AF_INET;
-	network_sockaddr_listen.sin_port = htons(port);
-	network_sockaddr_listen.sin_addr.S_un.S_addr = INADDR_ANY;
-	if (bind(socket, (sockaddr*) & (network_sockaddr_listen), sizeof(network_sockaddr_listen)) != 0) { return 1; }
-	return listen(socket, SOMAXCONN);
-
-
+    sockaddr_in network_sockaddr_listen;
+    network_sockaddr_listen.sin_family = AF_INET;
+    network_sockaddr_listen.sin_port = htons(port);
+    network_sockaddr_listen.sin_addr.S_un.S_addr = INADDR_ANY;
+    if (bind(socket, (sockaddr*)&(network_sockaddr_listen), sizeof(network_sockaddr_listen)) != 0) {
+        return 1;
+    }
+    return listen(socket, SOMAXCONN);
 }
-
 
 int socket_send(socket_t socket, char* buf, int size)
 {
-	return send(socket, buf, size, 0);
+    return send(socket, buf, size, 0);
 }
 
 int socket_recv(socket_t socket, char* buf, int size)
 {
 
-	return recv(socket, buf, size, 0);
-
+    return recv(socket, buf, size, 0);
 }
 
 void close_socket(socket_t socket)
 {
-	closesocket(socket);
-	WSACleanup();
-
+    closesocket(socket);
+    WSACleanup();
 }
 
 #endif
@@ -190,78 +176,76 @@ void close_socket(socket_t socket)
 
 socket_t open_socket(int type)
 {
-	socket_t s = -1;
-	
-	switch (type)
-	{
-		case SOCKET_TCP:
-		{
-			s = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-			break;
-		}
-	}
+    socket_t s = -1;
 
-	return s;
+    switch (type) {
+    case SOCKET_TCP: {
+        s = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+        break;
+    }
+    }
+
+    return s;
 }
 
-int connect_socket(socket_t socket, char *address, unsigned short port)
+int connect_socket(socket_t socket, char* address, unsigned short port)
 {
-	struct sockaddr_in addr = {0};
+    struct sockaddr_in addr = { 0 };
 
-	addr.sin_family = AF_INET;
-	
-	addr.sin_port = port;
-	inet_pton(AF_INET, address, &(addr.sin_addr));
+    addr.sin_family = AF_INET;
 
-	return connect(socket, (struct sockaddr *)&addr, sizeof(addr));
+    addr.sin_port = port;
+    inet_pton(AF_INET, address, &(addr.sin_addr));
+
+    return connect(socket, (struct sockaddr*)&addr, sizeof(addr));
 }
 
 int socket_listen(socket_t socket, unsigned short port)
 {
-	struct sockaddr_in addr = {0};
+    struct sockaddr_in addr = { 0 };
 
-	addr.sin_family = AF_INET;
-	
-	addr.sin_port = port;
-	addr.sin_addr.s_addr = INADDR_ANY;
+    addr.sin_family = AF_INET;
 
-	if(bind(socket, (struct sockaddr *)&addr, sizeof(addr)) == -1) return -1;
+    addr.sin_port = port;
+    addr.sin_addr.s_addr = INADDR_ANY;
 
-	return listen(socket, 1);
+    if (bind(socket, (struct sockaddr*)&addr, sizeof(addr)) == -1)
+        return -1;
+
+    return listen(socket, 1);
 }
 
-socket_t accept_socket(socket_t socket, struct client_info *info)
+socket_t accept_socket(socket_t socket, struct client_info* info)
 {
-	struct sockaddr_in addr = {0};
+    struct sockaddr_in addr = { 0 };
+    socklen_t addr_size = sizeof(addr);
+    int sock = accept(socket, (struct sockaddr*)&addr, &addr_size);
 
-	int sock = accept(socket, (struct sockaddr *)&addr, sizeof(addr));
+    if (socket != -1) {
+        if (info != NULL) {
+            info->port = addr.sin_port;
+            inet_ntop(AF_INET, &(addr.sin_addr), info->address, INET_ADDRSTRLEN);
+        }
 
-	if(socket != -1)
-	{
-		if(info != NULL)
-		{
-			info->port = addr.sin_port;
-			inet_ntop(AF_INET, &(addr.sin_addr), info->address, INET_ADDRSTRLEN);		
-		}
-		
-		return sock;
-	}
-	else return -1;
+        return sock;
+    }
+    else
+        return -1;
 }
 
-int socket_send(socket_t socket, char *buf, int size)
+int socket_send(socket_t socket, char* buf, int size)
 {
-	return send(socket, buf, size, 0);
+    return send(socket, buf, size, 0);
 }
 
-int socket_recv(socket_t socket, char *buf, int size)
+int socket_recv(socket_t socket, char* buf, int size)
 {
-	return recv(socket, buf, size, 0);
+    return recv(socket, buf, size, 0);
 }
 
 void close_socket(socket_t socket)
 {
-	close(socket);
+    close(socket);
 }
 
 #endif

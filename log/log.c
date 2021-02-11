@@ -19,7 +19,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
 */
 
-#include "Log.h"
+#include "log.h"
 #include <stdarg.h>
 #include <stdlib.h>
 #include <stdio.h>
