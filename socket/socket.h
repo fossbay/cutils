@@ -104,70 +104,58 @@ socket_t open_socket(int type) {
 	return s;
 }
 
-int connect_socket(socket_t socket, char* address, unsigned short port)
-{
-	sockaddr_in network_sockaddr_connect;
+int connect_socket(socket_t socket, char* address, unsigned short port) {
+	struct sockaddr_in network_sockaddr_connect;
 
 	network_sockaddr_connect.sin_family = AF_INET;
-	network_sockaddr_connect.sin_port = htons(port);
+	
+	network_sockaddr_connect.sin_port = port;
 	inet_pton(AF_INET, address, &network_sockaddr_connect.sin_addr);
     
 	return connect(socket, (sockaddr*)&network_sockaddr_connect, sizeof(network_sockaddr_connect));
 }
 
-socket_t accept_socket(socket_t socket, struct client_info* info)
-{
-	sockaddr_in client; 
+socket_t accept_socket(socket_t socket, struct client_info* info) {
+	struct sockaddr_in client; 
+	
 	int client_size = sizeof(client);
-	int sock = accept(socket , (sockaddr*)&client, &client_size);
-	if (socket != -1)
-	{
-		if (info != NULL)
-		{
+	int sock = accept(socket, (sockaddr*)&client, &client_size);
+	
+	if(socket != -1) {
+		if (info != NULL) {
 			info->port = client.sin_port;
 			inet_ntop(AF_INET, &client.sin_addr, info->address, INET_ADDRSTRLEN);
-		}
-		else {
+		} else 
 			return sock;
-		}
-	}
-	else
-	{
+	} else
 		return -1;
-	}
 }
 
-int socket_listen(socket_t socket, unsigned short port)
-{
-
-	sockaddr_in network_sockaddr_listen;
+int socket_listen(socket_t socket, unsigned short port) {
+	struct sockaddr_in network_sockaddr_listen;
+	
 	network_sockaddr_listen.sin_family = AF_INET;
-	network_sockaddr_listen.sin_port = htons(port);
+	
+	network_sockaddr_listen.sin_port = port;
 	network_sockaddr_listen.sin_addr.S_un.S_addr = INADDR_ANY;
-	if (bind(socket, (sockaddr*) & (network_sockaddr_listen), sizeof(network_sockaddr_listen)) != 0) { return 1; }
+	
+	if(bind(socket, (sockaddr*) &(network_sockaddr_listen), sizeof(network_sockaddr_listen)) != 0)
+		return 1;
+	
 	return listen(socket, SOMAXCONN);
-
-
 }
 
 
-int socket_send(socket_t socket, char* buf, int size)
-{
+int socket_send(socket_t socket, char* buf, int size) {
 	return send(socket, buf, size, 0);
 }
 
-int socket_recv(socket_t socket, char* buf, int size)
-{
-
+int socket_recv(socket_t socket, char* buf, int size) {
 	return recv(socket, buf, size, 0);
-
 }
 
-void close_socket(socket_t socket)
-{
+void close_socket(socket_t socket) {
 	closesocket(socket);
-	WSACleanup();
-
 }
 
 #endif
@@ -183,24 +171,19 @@ void close_socket(socket_t socket)
 #include <netinet/in.h>
 #include <sys/socket.h>
 
-socket_t open_socket(int type)
-{
+socket_t open_socket(int type) {
 	socket_t s = -1;
 	
-	switch (type)
-	{
+	switch(type) {
 		case SOCKET_TCP:
-		{
 			s = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 			break;
-		}
 	}
 
 	return s;
 }
 
-int connect_socket(socket_t socket, char *address, unsigned short port)
-{
+int connect_socket(socket_t socket, char *address, unsigned short port) {
 	struct sockaddr_in addr = {0};
 
 	addr.sin_family = AF_INET;
@@ -211,8 +194,7 @@ int connect_socket(socket_t socket, char *address, unsigned short port)
 	return connect(socket, (struct sockaddr *)&addr, sizeof(addr));
 }
 
-int socket_listen(socket_t socket, unsigned short port)
-{
+int socket_listen(socket_t socket, unsigned short port) {
 	struct sockaddr_in addr = {0};
 
 	addr.sin_family = AF_INET;
@@ -220,42 +202,37 @@ int socket_listen(socket_t socket, unsigned short port)
 	addr.sin_port = port;
 	addr.sin_addr.s_addr = INADDR_ANY;
 
-	if(bind(socket, (struct sockaddr *)&addr, sizeof(addr)) == -1) return -1;
+	if(bind(socket, (struct sockaddr *)&addr, sizeof(addr)) == -1)
+		return -1;
 
-	return listen(socket, 1);
+	return listen(socket, SOMAXCONN);
 }
 
-socket_t accept_socket(socket_t socket, struct client_info *info)
-{
+socket_t accept_socket(socket_t socket, struct client_info *info) {
 	struct sockaddr_in addr = {0};
 
 	int sock = accept(socket, (struct sockaddr *)&addr, sizeof(addr));
 
-	if(socket != -1)
-	{
-		if(info != NULL)
-		{
+	if(socket != -1) {
+		if(info != NULL) {
 			info->port = addr.sin_port;
 			inet_ntop(AF_INET, &(addr.sin_addr), info->address, INET_ADDRSTRLEN);		
 		}
 		
 		return sock;
-	}
-	else return -1;
+	} else
+		return -1;
 }
 
-int socket_send(socket_t socket, char *buf, int size)
-{
+int socket_send(socket_t socket, char *buf, int size) {
 	return send(socket, buf, size, 0);
 }
 
-int socket_recv(socket_t socket, char *buf, int size)
-{
+int socket_recv(socket_t socket, char *buf, int size) {
 	return recv(socket, buf, size, 0);
 }
 
-void close_socket(socket_t socket)
-{
+void close_socket(socket_t socket) {
 	close(socket);
 }
 
