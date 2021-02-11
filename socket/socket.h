@@ -91,9 +91,9 @@ socket_t open_socket(int type) {
     
 	WSADATA data;    
 	if(WSAStartup(MAKEWORD(2, 2), &data) != 0)
-        exit(1);
+		exit(1);
 
-	switch (type) {
+	switch(type) {
 	    case SOCKET_TCP:
 		    s = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 		    break;
@@ -120,7 +120,7 @@ socket_t accept_socket(socket_t socket, struct client_info* info) {
 	int sock = accept(socket, (sockaddr*)&client, &client_size);
 	
 	if(socket != -1) {
-		if (info != NULL) {
+		if(info != NULL) {
 			info->port = client.sin_port;
 			inet_ntop(AF_INET, &client.sin_addr, info->address, INET_ADDRSTRLEN);
 		} else 
